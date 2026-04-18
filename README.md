@@ -4,7 +4,7 @@ With the rapid digitization of education systems, fake degrees and forged certif
 
 This project aims to build a **secure, scalable, and intelligent platform** to authenticate academic credentials and eliminate fraud.
 
----
+--- 
 
 ## 💡 Solution Overview
 

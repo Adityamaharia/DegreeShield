@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DegreeShield — AI-Powered Document Verification Platform for secure credential authentication.">
+  <title>DegreeShield — AI Document Verification</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="main-navbar">
+    <div class="navbar-brand">
+      <div class="shield-icon"><i data-lucide="shield-check"></i></div>
+      DegreeShield
+    </div>
+    <div class="navbar-actions" id="navbar-actions">
+      <span class="role-badge" id="role-badge" style="display:none;"></span>
+      <button class="btn btn-ghost btn-sm" id="btn-logout" style="display:none;" onclick="logout()">
+        <i data-lucide="log-out" style="width:16px;height:16px;"></i> Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== LOGIN VIEW ===== -->
+  <section id="view-login" class="view-section active">
+    <div class="login-wrapper">
+      <!-- Floating data particles background -->
+      <div class="data-particles" id="data-particles"></div>
+
+      <!-- Step 1: Role Picker -->
+      <div class="card login-card" id="login-step-role">
+        <div class="logo-area">
+          <div class="logo-icon"><i data-lucide="shield-check"></i></div>
+          <h1>DegreeShield</h1>
+          <p>Secure Document Verification Platform</p>
+        </div>
+        <p class="login-subtitle">Choose how you'd like to sign in</p>
+        <div class="role-selector">
+          <button class="role-btn" onclick="showLoginForm('user')">
+            <div class="role-icon user-icon"><i data-lucide="graduation-cap"></i></div>
+            <div class="role-info">
+              <h4>Student / Verifier</h4>
+              <p>Verify your certificates &amp; degrees</p>
+            </div>
+            <i data-lucide="chevron-right" class="role-arrow"></i>
+          </button>
+          <button class="role-btn" onclick="showLoginForm('institution')">
+            <div class="role-icon inst-icon"><i data-lucide="building-2"></i></div>
+            <div class="role-info">
+              <h4>Institution</h4>
+              <p>Manage your credential database</p>
+            </div>
+            <i data-lucide="chevron-right" class="role-arrow"></i>
+          </button>
+          <button class="role-btn" onclick="showLoginForm('admin')">
+            <div class="role-icon admin-icon"><i data-lucide="shield"></i></div>
+            <div class="role-info">
+              <h4>Administrator</h4>
+              <p>Platform analytics &amp; oversight</p>
+            </div>
+            <i data-lucide="chevron-right" class="role-arrow"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Login Form (hidden initially) -->
+      <div class="card login-card login-form-card" id="login-step-form" style="display:none;">
+        <button class="btn btn-ghost btn-sm login-back-btn" onclick="showRolePicker()">
+          <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back
+        </button>
+        <div class="logo-area" style="margin-top:8px;">
+          <div class="logo-icon" id="login-form-icon"><i data-lucide="user"></i></div>
+          <h2 id="login-form-title">Student Login</h2>
+          <p id="login-form-desc" class="login-form-desc">Sign in to verify your documents</p>
+        </div>
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="login-email"><i data-lucide="mail" style="width:14px;height:14px;vertical-align:-2px;"></i> Email</label>
+            <input type="email" id="login-email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="login-password"><i data-lucide="lock" style="width:14px;height:14px;vertical-align:-2px;"></i> Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+              <button type="button" class="password-toggle" onclick="togglePassword()" tabindex="-1">
+                <i data-lucide="eye" id="pw-toggle-icon" style="width:16px;height:16px;"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg login-submit-btn" id="login-submit-btn">
+            <i data-lucide="log-in" style="width:18px;height:18px;"></i>
+            <span>Sign In</span>
+          </button>
+          <p class="login-hint" id="login-hint"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== USER/VERIFIER DASHBOARD ===== -->
+  <section id="view-user" class="view-section">
+    <div class="container">
+      <div class="dash-header">
+        <h2 id="user-welcome">Hey there! 👋</h2>
+        <p>Drop your certificate below and let our AI do the heavy lifting.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="user-stats">
+        <div class="card stat-card" style="--i:0">
+          <div class="stat-icon blue"><i data-lucide="scan-search"></i></div>
+          <div class="stat-value" id="user-total-scans">0</div>
+          <div class="stat-label">Total Scans</div>
+        </div>
+        <div class="card stat-card" style="--i:1">
+          <div class="stat-icon green"><i data-lucide="check-circle-2"></i></div>
+          <div class="stat-value" id="user-verified">0</div>
+          <div class="stat-label">Verified</div>
+        </div>
+        <div class="card stat-card" style="--i:2">
+          <div class="stat-icon red"><i data-lucide="alert-triangle"></i></div>
+          <div class="stat-value" id="user-flagged">0</div>
+          <div class="stat-label">Flagged</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Upload Card -->
+        <div class="card" id="upload-card">
+          <div class="card-header">
+            <h3><i data-lucide="upload-cloud"></i> Upload Document</h3>
+          </div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+            <i data-lucide="file-up"></i>
+            <h4>Drag your file here or tap to browse</h4>
+            <p>PDF, JPG, or PNG — up to 10MB</p>
+          </div>
+          <input type="file" id="file-input" class="file-input" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(event)">
+          <div id="selected-file" style="margin-top:14px;display:none;">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(30,41,59,0.5);border-radius:10px;border:1px solid var(--border);">
+              <i data-lucide="file-text" style="color:var(--primary);"></i>
+              <span id="selected-file-name" style="flex:1;font-size:0.88rem;"></span>
+              <button class="btn btn-primary btn-sm" onclick="runVerification()">
+                <i data-lucide="scan" style="width:14px;height:14px;"></i> Verify
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="card" id="how-it-works-card">
+          <div class="card-header">
+            <h3><i data-lucide="lightbulb"></i> How It Works</h3>
+          </div>
+          <div id="how-steps" class="steps-grid">
+            <div class="step-card card"><div class="step-num">1</div><h4>Upload</h4><p>Pick your certificate — any format works</p></div>
+            <div class="step-card card"><div class="step-num">2</div><h4>AI Scan</h4><p>Our AI reads & extracts every detail</p></div>
+            <div class="step-card card"><div class="step-num">3</div><h4>Cross-check</h4><p>Matched against official university records</p></div>
+            <div class="step-card card"><div class="step-num">4</div><h4>Results</h4><p>Instant trust score & downloadable report</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verification Results -->
+      <div class="results-panel" id="results-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3><i data-lucide="clipboard-check"></i> Verification Results</h3>
+            <span class="status-badge" id="result-status-badge"></span>
+          </div>
+
+          <div class="trust-score-display card">
+            <div class="trust-ring">
+              <svg viewBox="0 0 140 140">
+                <circle class="ring-bg" cx="70" cy="70" r="58"></circle>
+                <circle class="ring-fill" id="trust-ring-fill" cx="70" cy="70" r="58" stroke-dasharray="364.42" stroke-dashoffset="364.42"></circle>
+              </svg>
+              <div class="score-text" id="trust-score-text">0</div>
+            </div>
+            <div class="trust-info">
+              <h3>Trust Score</h3>
+              <p style="color:var(--text-muted);margin-bottom:10px;" id="trust-summary">Analyzing document...</p>
+              <div class="verdict" id="trust-verdict"></div>
+            </div>
+          </div>
+
+          <h4 style="margin-bottom:14px;font-size:1rem;">Extracted Information</h4>
+          <div class="parsed-data-grid" id="parsed-data-grid"></div>
+
+          <div id="issues-section" style="display:none;">
+            <h4 style="margin-bottom:10px;font-size:1rem;display:flex;align-items:center;gap:8px;">
+              <i data-lucide="alert-octagon" style="color:var(--danger);width:18px;height:18px;"></i> Issues Detected
+            </h4>
+            <ul class="issues-list" id="issues-list"></ul>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-primary" onclick="downloadReport()"><i data-lucide="download" style="width:16px;height:16px;"></i> Save Report</button>
+            <button class="btn btn-danger" onclick="flagForReview()"><i data-lucide="flag" style="width:16px;height:16px;"></i> Report Issue</button>
+            <button class="btn btn-ghost" onclick="resetUpload()"><i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> Scan Another</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3><i data-lucide="activity"></i> Recent Activity</h3>
+          <button class="btn btn-ghost btn-sm" onclick="clearActivities()">Clear</button>
+        </div>
+        <ul class="activity-list" id="user-activity-list">
+          <li class="activity-item"><span class="activity-dot blue"></span>No activity yet — upload a document to begin.<span class="activity-time">now</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== INSTITUTION DASHBOARD ===== -->
+  <section id="view-institution" class="view-section">
+    <div class="container">
+      <div class="dash-header">
+        <h2>Institution Portal 🏛️</h2>
+        <p>Your credential database at a glance — manage, validate, and bulk-import.</p>
+      </div>
+
+      <div class="stats-grid" id="inst-stats">
+        <div class="card stat-card" style="--i:0">
+          <div class="stat-icon green"><i data-lucide="database"></i></div>
+          <div class="stat-value" id="inst-total-records">248</div>
+          <div class="stat-label">Total Records</div>
+        </div>
+        <div class="card stat-card" style="--i:1">
+          <div class="stat-icon blue"><i data-lucide="badge-check"></i></div>
+          <div class="stat-value" id="inst-active">231</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="card stat-card" style="--i:2">
+          <div class="stat-icon yellow"><i data-lucide="clock"></i></div>
+          <div class="stat-value" id="inst-pending">12</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="card stat-card" style="--i:3">
+          <div class="stat-icon red"><i data-lucide="x-circle"></i></div>
+          <div class="stat-value" id="inst-revoked">5</div>
+          <div class="stat-label">Revoked</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Certificate Table -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <h3><i data-lucide="table-2"></i> Certificate Records</h3>
+            <div style="display:flex;gap:8px;">
+              <input type="text" class="form-input" placeholder="Search by ID or name..." id="cert-search" oninput="filterCertificates()" style="width:220px;">
+              <button class="btn btn-primary btn-sm" onclick="showBulkUploadModal()"><i data-lucide="upload" style="width:14px;height:14px;"></i> Bulk Upload</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table id="cert-table">
+              <thead>
+                <tr>
+                  <th>Certificate ID</th>
+                  <th>Student Name</th>
+                  <th>Degree</th>
+                  <th>Year</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="cert-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Upload Modal -->
+      <div class="modal-overlay" id="bulk-upload-modal">
+        <div class="modal-content">
+          <h3 style="margin-bottom:6px;">Bulk Data Ingestion</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px;">Upload CSV, JSON, PDF, or image files to batch-import records.</p>
+          <div class="upload-zone" onclick="document.getElementById('bulk-file-input').click()" style="padding:30px 20px;">
+            <i data-lucide="files"></i>
+            <h4>Select files to import</h4>
+            <p>CSV, JSON, PDF, JPG, PNG</p>
+          </div>
+          <input type="file" id="bulk-file-input" class="file-input" accept=".csv,.json,.pdf,.jpg,.jpeg,.png" multiple onchange="handleBulkUpload(event)">
+          <div id="bulk-progress" style="display:none;margin-top:16px;">
+            <div class="progress-label" id="bulk-progress-label">Preparing...</div>
+            <div class="progress-wrap"><div class="progress-fill" id="bulk-progress-fill"></div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+            <button class="btn btn-ghost btn-sm" onclick="closeBulkUploadModal()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN DASHBOARD ===== -->
+  <section id="view-admin" class="view-section">
+    <div class="container">
+      <div class="dash-header">
+        <h2>Command Center 🛡️</h2>
+        <p>Platform-wide analytics, anomaly detection, and real-time system health.</p>
+      </div>
+
+      <div class="stats-grid" id="admin-stats">
+        <div class="card stat-card" style="--i:0">
+          <div class="stat-icon blue"><i data-lucide="bar-chart-3"></i></div>
+          <div class="stat-value" id="admin-total-verifications">1420</div>
+          <div class="stat-label">Total Verifications</div>
+        </div>
+        <div class="card stat-card" style="--i:1">
+          <div class="stat-icon green"><i data-lucide="users"></i></div>
+          <div class="stat-value" id="admin-active-users">364</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="card stat-card" style="--i:2">
+          <div class="stat-icon yellow"><i data-lucide="alert-triangle"></i></div>
+          <div class="stat-value" id="admin-anomalies">7</div>
+          <div class="stat-label">Anomalies</div>
+        </div>
+        <div class="card stat-card" style="--i:3">
+          <div class="stat-icon green"><i data-lucide="server"></i></div>
+          <div class="stat-value">99.8%</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Traffic Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i data-lucide="trending-up"></i> Verification Traffic</h3>
+            <span style="font-size:0.78rem;color:var(--text-dim);">Last 7 days</span>
+          </div>
+          <div class="chart-bars" id="traffic-chart"></div>
+          <div style="height:30px;"></div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i data-lucide="cpu"></i> System Health</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.85rem;">OCR Service</span>
+                <span style="font-size:0.82rem;color:var(--success);">● Operational</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:94%;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.85rem;">AI Parser</span>
+                <span style="font-size:0.82rem;color:var(--success);">● Operational</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:88%;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.85rem;">Database Sync</span>
+                <span style="font-size:0.82rem;color:var(--warning);">● Degraded</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:72%;background:linear-gradient(90deg,var(--warning),#fbbf24);"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:0.85rem;">API Gateway</span>
+                <span style="font-size:0.82rem;color:var(--success);">● Operational</span>
+              </div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:97%;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Anomalies Table -->
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3><i data-lucide="shield-alert"></i> System Anomalies</h3>
+          <span class="status-badge pending" id="anomaly-count-badge">0 Active</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Severity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="anomaly-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Admin Activity Audit -->
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <h3><i data-lucide="scroll-text"></i> Audit Log</h3>
+        </div>
+        <ul class="activity-list" id="admin-audit-log"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p><span class="footer-brand">DegreeShield</span> — Making credential verification simple & trustworthy</p>
+    <p style="margin-top:4px;">Built with 💜 for students, institutions, and peace of mind.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

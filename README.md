@@ -90,7 +90,7 @@ This project aims to build a **secure, scalable, and intelligent platform** to a
 
 ### Database
 
-* MongoDB / PostgreSQL
+* Supabase / PostgreSQL
 
 ### Advanced (Optional)
 
